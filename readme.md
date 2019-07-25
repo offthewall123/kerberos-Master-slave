@@ -109,7 +109,37 @@ cat /var/kerberos/krb5kdc/kadm5.acl
 
 ## 第8步 slave机器配置主从（在slave机器上）
 
-到/var/kerberos/krb5kdc/新建一个文件kpropd.acl内容为
-```host/iedev07-2945107.slc07.dev.ebayc3.com@EBAY.COM
-```host/iedev08-2945122.slc07.dev.ebayc3.com@EBAY.COM
+到/var/kerberos/krb5kdc/新建一个文件kpropd.acl内容为 
+```
+host/iedev07-2945107.slc07.dev.ebayc3.com@EBAY.COM
+host/iedev08-2945122.slc07.dev.ebayc3.com@EBAY.COM
 
+```
+## 第9步 在master机器上启动服务(在master机器上）
+`systemctl start krb5kdc`
+
+`systemctl start kadmin`
+
+查看状态
+
+`systemctl status krb5kdc`
+
+`systemctl status kadmin`
+
+## 第10步 在slave机器上启动kprop服务（在slave机器上）
+
+`systemctl start kprop`
+
+## 第11步 同步数据（在master机器上）
+
+`kdb5_util dump /var/kerberos/krb5kdc/slave_datatrans`
+
+打包数据文件
+
+`kprop -f /var/kerberos/krb5kdc/slave_datatrans iedev08-2945122.slc07.dev.ebayc3.com`
+
+发送给slave机器
+
+一定要看到 Database propagation to iedev08-2945122.slc07.dev.ebayc3.com: SUCCEEDED 表示主从搭建ok了
+
+可以将这两条命令写成shell定时执行
